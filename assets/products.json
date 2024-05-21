@@ -1,0 +1,124 @@
+{
+  "categories": [
+    {
+      "id": 1,
+      "name": "ভারীস্রাব স্যানিটারী ন্যাপকিন",
+      "products": [
+        {
+          "index": 1,
+          "name": "জয়া Extra Heavy Flow Wings - ৮টি প্যাড",
+          "amount": "১১০ টাকা",
+          "image": "images/prod_1_1.png"
+        },
+        {
+          "index": 2,
+          "name": "ফ্রিডম Super Dry স্যানিটারী ন্যাপকিন - ৮টি প্যাড",
+          "amount": "৯০ টাকা",
+          "image": "images/prod_1_2.png"
+        },
+        {
+          "index": 3,
+          "name": "ফ্রিডম Heavy Flow Wings - ৮টি প্যাড",
+          "amount": "১১০ টাকা",
+          "image": "images/image 2.png"
+        },
+        {
+          "index": 4,
+          "name": "ফ্রিডম Heavy flow Control - ৮টি প্যাড",
+          "amount": "১২০ টাকা",
+          "image": "images/image 2 (1).png"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "name": "নিয়মিতস্রাব স্যানিটারী ন্যাপকিন",
+      "products": [
+        {
+          "index": 1,
+          "name": "সেনোরা Confidence - ৫টি প্যাড",
+          "amount": "৬৫ টাকা",
+          "image": "images/prod_2_1.png"
+        },
+        {
+          "index": 2,
+          "name": "ফ্রিডম Regular Flow স্যানিটারী ন্যাপকিন - ৮টি প্যাড",
+          "amount": "৪৫ টাকা",
+          "image": "images/prod_2_2.png"
+        },
+        {
+          "index": 3,
+          "name": "ফ্রিডম Regular Flow - ৮টি প্যাড",
+          "amount": "৪৫ টাকা",
+          "image": "images/image 2 (2).png"
+        },
+        {
+          "index": 4,
+          "name": "জয়া Regular Flow Wings - ৮টি প্যাড",
+          "amount": "৭০ টাকা",
+          "image": "images/image 2 (3).png"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "name": "বেল্ট সিস্টেম স্যানিটারী ন্যাপকিন",
+      "products": [
+        {
+          "index": 1,
+          "name": "সেনোরা স্যানিটারী ন্যাপকিন বেল্ট সিস্টেম- ১০টি প্যাড",
+          "amount": "১০০ টাকা",
+          "image": "images/image 2 (12).png"
+        },
+        {
+          "index": 2,
+          "name": "জয়া স্যানিটারী ন্যাপকিন বেল্ট সিস্টেম- ১৫টি প্যাড",
+          "amount": "১১০ টাকা",
+          "image": "images/prod_1_2.png"
+        },
+        {
+          "index": 3,
+          "name": "ফ্ফ্রেশ অনন্যা স্যানিটারী ন্যাপকিন বেল্ট সিস্টেম- ১৫টি প্যাড",
+          "amount": "১১০ টাকা",
+          "image": "images/image 6.png"
+        },
+        {
+          "index": 4,
+          "name": "ফ্রিডম বেল্ট সিস্টেম স্যানিটারী ন্যাপকিন- ১৫টি প্যাড",
+          "amount": "১৩০ টাকা",
+          "image": "images/image 2 (4).png"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "name": "অন্যান্য",
+      "products": [
+        {
+          "index": 1,
+          "name": "Tampax Compak With Applicator Super - ২০ পিস",
+          "amount": "১১০ টাকা",
+          "image": "images/image 2 (5).png"
+        },
+        {
+          "index": 2,
+          "name": "লরিয়ার প্যান্টিলাইনার ফ্রেশ ফ্লোরাল পারফিউমড-২০ পিস",
+          "amount": "৪০০ টাকা",
+          "image": "images/im.png"
+        },
+        {
+          "index": 3,
+          "name": "Loriyaar Relax Night Sanitary Napkin- 16 Pads",
+          "amount": "২০০ টাকা",
+          "image": "images/image 3.png"
+        },
+        {
+          "index": 4,
+          "name": "জয়া Extra Heavy Flow Wings - ৮টি প্যাড",
+          "amount": "৭৫০ টাকা",
+          "image": "images/image 2 (3).png"
+        }
+      ]
+    }
+  ]
+}
