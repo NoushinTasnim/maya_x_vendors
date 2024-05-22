@@ -38,7 +38,7 @@ class ProductCard extends StatelessWidget {
                 borderRadius: BorderRadius.circular(FetchPixels.getScale()*16),
                 child: Image(
                   height: FetchPixels.getPixelHeight(150),
-                  image: AssetImage(product.image),
+                  image: NetworkImage(product.image),
                 ),
               ),
             ),

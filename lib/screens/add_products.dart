@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:maya_x_vendors/colors.dart';
 import 'package:maya_x_vendors/fetch_pixels.dart';
-
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../components/text_field.dart';
 import 'my_products.dart';
 
@@ -20,6 +20,72 @@ class _AddProductState extends State<AddProduct> {
   String? _selectedOption; // State variable to keep track of the selected option
 
   final List<String> _options = ['ভারীস্রাব স্যানিটারী ন্যাপকিন', 'নিয়মিতস্রাব স্যানিটারী ন্যাপকিন', 'বেল্ট সিস্টেম স্যানিটারী ন্যাপকিন','অন্যান্য']; // List of options
+
+  void _addProduct() async {
+    if (_selectedOption != null &&
+        _productNameController.text.isNotEmpty &&
+        _productAmountController.text.isNotEmpty &&
+        _productDescriptionController.text.isNotEmpty) {
+
+      Map<String, dynamic> productData = {
+        'id' : '5',
+        'index' : 5,
+        'name': _productNameController.text,
+        'amount': _productAmountController.text,
+        'image': 'image.png',
+        'details': _productDescriptionController.text,
+        'vendor': 'iabced',
+      };
+
+      try {
+        QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+            .collection('categories')
+            .where('name', isEqualTo: _selectedOption)
+            .get();
+
+        if (querySnapshot.docs.isNotEmpty) {
+          String categoryId = querySnapshot.docs.first.id;
+          await FirebaseFirestore.instance
+              .collection('categories')
+              .doc(categoryId)
+              .collection('products')
+              .add(productData);
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              backgroundColor: kSecondaryColor,
+              content: Text("পণ্যটি যুক্ত হয়েছে"),
+            ),
+          );
+          _productNameController.clear();
+          _productAmountController.clear();
+          _productDescriptionController.clear();
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              backgroundColor: kSecondaryColor,
+              content: Text("পণ্যটি যোগ করতে ব্যর্থ হয়েছে: বিভাগ পাওয়া যায়নি"),
+            ),
+          );
+        }
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            backgroundColor: kSecondaryColor,
+            content: Text("পণ্যটি যোগ করতে ব্যর্থ হয়েছে: $e"),
+          ),
+        );
+      }
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          backgroundColor: kSecondaryColor,
+          content: Text("অনুগ্রহ করে সব ফিল্ড পূরণ করুন"),
+        ),
+      );
+    }
+  }
+
 
 
   @override
@@ -129,14 +195,15 @@ class _AddProductState extends State<AddProduct> {
             ),
           ),
           InkWell(
-            onTap: (){
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  backgroundColor: kSecondaryColor,
-                  content: Text("পণ্যটি যুক্ত হয়েছে",),
-                ),
-              );
-            },
+            // onTap: (){
+            //   ScaffoldMessenger.of(context).showSnackBar(
+            //     const SnackBar(
+            //       backgroundColor: kSecondaryColor,
+            //       content: Text("পণ্যটি যুক্ত হয়েছে",),
+            //     ),
+            //   );
+            // },
+            onTap: _addProduct,
             child: Container(
               width: double.infinity,
               padding: EdgeInsets.all(FetchPixels.getScale()*16,),
