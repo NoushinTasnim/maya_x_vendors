@@ -7,6 +7,7 @@ import '../components/text_field.dart';
 import 'my_products.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'dart:io';
+import '../model/Vendor_model.dart';
 
 class AddProduct extends StatefulWidget {
   const AddProduct({super.key});
@@ -19,7 +20,6 @@ class _AddProductState extends State<AddProduct> {
   TextEditingController _productNameController = TextEditingController();
   TextEditingController _productAmountController = TextEditingController();
   TextEditingController _productDescriptionController = TextEditingController();
-  TextEditingController _productImageController = TextEditingController();
 
   String? _selectedOption; // State variable to keep track of the selected option
   File? _imageFile;
@@ -34,6 +34,8 @@ class _AddProductState extends State<AddProduct> {
       });
     }
   }
+
+  Usermodel user = Usermodel();
 
   Future<String?> _uploadImage(File image) async {
     try {
@@ -88,7 +90,7 @@ class _AddProductState extends State<AddProduct> {
             'amount': _productAmountController.text,
             'image': imageURL,
             'details': _productDescriptionController.text,
-            'vendor': 'iabced',
+            'vendor': user.getShopName(),
           };
 
           await newDocRef.set(productData);
