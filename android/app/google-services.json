@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "11446288007",
+    "project_id": "maya-x-c0e4e",
+    "storage_bucket": "maya-x-c0e4e.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:11446288007:android:da8f9553c600e04c7ec222",
+        "android_client_info": {
+          "package_name": "com.example.maya_x"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB2BzSzVWzn6o_pB_qG-zTnICtck56dlQs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:11446288007:android:b8550fff6aaca2fd7ec222",
+        "android_client_info": {
+          "package_name": "com.example.maya_x_vendors"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB2BzSzVWzn6o_pB_qG-zTnICtck56dlQs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

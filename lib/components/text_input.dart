@@ -26,7 +26,7 @@ class TextInputFiledsWidget extends StatelessWidget {
             ),
             TextFieldWidget(
               iconData: Icons.person_outline,
-              text: 'নাম',
+              text: 'স্টোরের নাম',
               keyboard_type: TextInputType.name,
               textInputController: userController ?? phoneController,
             ),
