@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+
 import '../colors.dart';
 import '../components/text_input.dart';
 import 'bottom_nav_screen.dart';
@@ -68,6 +69,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         verificationCompleted: (PhoneAuthCredential credential) async {
                           UserCredential userCredential = await FirebaseAuth.instance.signInWithCredential(credential);
                           await _saveUserData(userCredential.user!.uid);
+
+
                         },
                         verificationFailed: (FirebaseAuthException e) {
                           print('Verification failed: ${e.message}');
@@ -179,5 +182,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
       'shop name': userController.text.trim(),
       'userID': uid,
     });
+
+
   }
 }

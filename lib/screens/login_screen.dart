@@ -1,9 +1,12 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:maya_x_vendors/screens/signup_screen.dart';
 
+
 import '../colors.dart';
 import '../components/text_input.dart';
+import '../model/Vendor_model.dart';
 import 'bottom_nav_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -14,6 +17,7 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+
   TextEditingController phoneController = TextEditingController(text: "+880");
   TextEditingController passwordController = TextEditingController();
 
@@ -66,7 +70,14 @@ class _LoginScreenState extends State<LoginScreen> {
                     if (userDoc.docs.isNotEmpty) {
                       var userData = userDoc.docs.first.data();
                       if (userData['password'] == password) {
-                        // Navigate to Home screen if authenticated
+                        print(userData['shop name']);
+                        Usermodel user= Usermodel();
+                        user.setShopName(userData['shop name']);
+                        user.setUserID(userData['userID']);
+                        user.setPassword(userData['password']);
+                        user.setPhone(userData['phone']);
+
+                        print(user.getShopName());
                         Navigator.pushReplacement(
                           context,
                           MaterialPageRoute(
