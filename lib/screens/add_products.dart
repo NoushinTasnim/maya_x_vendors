@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:maya_x_vendors/colors.dart';
 import 'package:maya_x_vendors/fetch_pixels.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:image_picker/image_picker.dart';
 import '../components/text_field.dart';
 import 'my_products.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'dart:io';
 
 class AddProduct extends StatefulWidget {
   const AddProduct({super.key});
@@ -16,28 +19,51 @@ class _AddProductState extends State<AddProduct> {
   TextEditingController _productNameController = TextEditingController();
   TextEditingController _productAmountController = TextEditingController();
   TextEditingController _productDescriptionController = TextEditingController();
+  TextEditingController _productImageController = TextEditingController();
 
   String? _selectedOption; // State variable to keep track of the selected option
+  File? _imageFile;
 
   final List<String> _options = ['ভারীস্রাব স্যানিটারী ন্যাপকিন', 'নিয়মিতস্রাব স্যানিটারী ন্যাপকিন', 'বেল্ট সিস্টেম স্যানিটারী ন্যাপকিন','অন্যান্য']; // List of options
+
+  Future<void> _pickImage() async {
+    final pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      setState(() {
+        _imageFile = File(pickedFile.path);
+      });
+    }
+  }
+
+  Future<String?> _uploadImage(File image) async {
+    try {
+      String fileName = DateTime.now().millisecondsSinceEpoch.toString();
+      Reference ref = FirebaseStorage.instance.ref().child('product_images').child(fileName);
+      UploadTask uploadTask = ref.putFile(image);
+      TaskSnapshot taskSnapshot = await uploadTask;
+      String downloadURL = await taskSnapshot.ref.getDownloadURL();
+      return downloadURL;
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          backgroundColor: kSecondaryColor,
+          content: Text("Image upload failed: $e"),
+        ),
+      );
+      return null;
+    }
+  }
 
   void _addProduct() async {
     if (_selectedOption != null &&
         _productNameController.text.isNotEmpty &&
         _productAmountController.text.isNotEmpty &&
-        _productDescriptionController.text.isNotEmpty) {
-
-      Map<String, dynamic> productData = {
-        'id' : '5',
-        'index' : 5,
-        'name': _productNameController.text,
-        'amount': _productAmountController.text,
-        'image': 'image.png',
-        'details': _productDescriptionController.text,
-        'vendor': 'iabced',
-      };
+        _productDescriptionController.text.isNotEmpty &&
+        _imageFile != null) {
 
       try {
+        String? imageURL = await _uploadImage(_imageFile!);
+        if (imageURL == null) return;
         QuerySnapshot querySnapshot = await FirebaseFirestore.instance
             .collection('categories')
             .where('name', isEqualTo: _selectedOption)
@@ -45,11 +71,27 @@ class _AddProductState extends State<AddProduct> {
 
         if (querySnapshot.docs.isNotEmpty) {
           String categoryId = querySnapshot.docs.first.id;
-          await FirebaseFirestore.instance
+          DocumentReference newDocRef = FirebaseFirestore.instance
               .collection('categories')
               .doc(categoryId)
               .collection('products')
-              .add(productData);
+              .doc();
+
+          String uniqueId = newDocRef.id;
+          int uniqueIndex = DateTime.now().millisecondsSinceEpoch;
+
+
+          Map<String, dynamic> productData = {
+            'id': uniqueId,
+            'index': uniqueIndex,
+            'name': _productNameController.text,
+            'amount': _productAmountController.text,
+            'image': imageURL,
+            'details': _productDescriptionController.text,
+            'vendor': 'iabced',
+          };
+
+          await newDocRef.set(productData);
 
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
@@ -57,9 +99,13 @@ class _AddProductState extends State<AddProduct> {
               content: Text("পণ্যটি যুক্ত হয়েছে"),
             ),
           );
+
           _productNameController.clear();
           _productAmountController.clear();
           _productDescriptionController.clear();
+          setState(() {
+            _imageFile = null;
+          });
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
@@ -85,6 +131,7 @@ class _AddProductState extends State<AddProduct> {
       );
     }
   }
+
 
 
 
@@ -191,6 +238,25 @@ class _AddProductState extends State<AddProduct> {
                   obscureText: false,
                   textInputController: _productDescriptionController,
                 ),
+                SizedBox(
+                  height: FetchPixels.getPixelHeight(16),
+                ),
+                TextButton.icon(
+                  icon: Icon(Icons.image, color: kSecondaryColor),
+                  label: Text(
+                    'ছবি নির্বাচন করুন',
+                    style: TextStyle(
+                      fontFamily: 'Kalpurush',
+                      color: kSecondaryColor,
+                    ),
+                  ),
+                  onPressed: _pickImage,
+                ),
+                if (_imageFile != null)
+                  Image.file(
+                    _imageFile!,
+                    height: 200,
+                  ),
               ],
             ),
           ),
