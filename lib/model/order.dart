@@ -10,7 +10,7 @@ class Orders{
   final DateTime date;
   final String amount;
   final String vendor;
-  final String status;
+  late final String status;
 
   Orders({
     required this.username,

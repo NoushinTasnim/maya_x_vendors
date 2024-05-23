@@ -45,7 +45,7 @@ class _ProductScreenState extends State<ProductScreen> {
 
       if (uid != null) {
         try {
-          DocumentSnapshot documentSnapshot = await FirebaseFirestore.instance.collection('user').doc(uid).get();
+          DocumentSnapshot documentSnapshot = await FirebaseFirestore.instance.collection('vendor').doc(uid).get();
 
           if (documentSnapshot.exists) {
             final data = documentSnapshot.data() as Map<String, dynamic>?;

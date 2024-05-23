@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:maya_x_vendors/fetch_pixels.dart';
 import 'package:maya_x_vendors/utils/store_orders.dart';
-
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../colors.dart';
 import '../model/Vendor_model.dart';
 import '../model/order.dart';
@@ -21,14 +21,139 @@ class _MyOrdersState extends State<MyOrders> {
 
   Usermodel user= Usermodel();
   late Future<List<Orders>> _futureOrders;
+  late Map<String, bool> _showConfirmRowMap = {};
 
   @override
   void initState() {
     super.initState();
-    _futureOrders = loadCheckouts(user.getUserID()).then((orders) {
-      return orders;
+    loadCheckouts(user.getUserID()).then((orders) {
+      setState(() {
+        _futureOrders = Future.value(orders);
+        _showConfirmRowMap = Map.fromIterable(
+          orders,
+          key: (order) => order.id,
+          value: (_) => true,
+        );
+      });
     });
   }
+
+
+  Future<void> updateOrderStatus(String vendorId, Orders order, String status) async {
+    QuerySnapshot userSnapshot = await FirebaseFirestore.instance
+        .collection('user')
+        .where('phone', isEqualTo: order.userPhone)
+        .limit(1)
+        .get();
+
+    String userId = userSnapshot.docs.first.id;
+
+    try {
+      await FirebaseFirestore.instance
+          .collection('vendor')
+          .doc(vendorId)
+          .collection('orders')
+          .doc(order.id)
+          .update({'status': status});
+
+      QuerySnapshot checkoutsSnapshot = await FirebaseFirestore.instance
+          .collection('user')
+          .doc(userId)
+          .collection('checkout')
+          .get();
+
+      for (var checkoutDoc in checkoutsSnapshot.docs) {
+        QuerySnapshot ordersDetailsSnapshot = await checkoutDoc.reference.collection('orders').get();
+
+        for (var orderDetailDoc in ordersDetailsSnapshot.docs) {
+          if (orderDetailDoc.id == order.id) {
+            await orderDetailDoc.reference.update({'status': status});
+
+            if (status == 'কনফার্ম') {
+              await sendConfirmationMessage(userId, order);
+            } else if (status == 'বাতিল') {
+              await sendCancellationMessage(userId, order);
+            }
+
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(status == 'কনফার্ম' ? 'অর্ডারটি সফলভাবে নিশ্চিত হয়েছে' : 'অর্ডারটি বাতিল করা হয়েছে'),
+                duration: Duration(seconds: 2),
+              ),
+            );
+
+            setState(() {
+              _futureOrders = loadCheckouts(user.getUserID()).then((orders) {
+                return orders;
+              });
+            });
+            _showConfirmRowMap[order.id] = false;
+            return;
+          }
+        }
+      }
+    } catch (e) {
+      print('Error updating order status: $e');
+    }
+  }
+
+  Future<void> sendConfirmationMessage(String userId, Orders order) async {
+    try {
+      String message = 'প্রিয় ${order.username},\n'
+          'আপনার অর্ডারটি নিশ্চিত করা হয়েছে।\n'
+          'অর্ডার: ${order.name}\n'
+          'পরিমাণ: ${order.quantity}\n'
+          'মূল্য: ${order.amount}\n'
+          'বিক্রেতা: ${order.vendor}\n'
+          'অর্ডার আইডি: ${order.id}\n'
+          'ধন্যবাদ।';
+
+      // Store the message in Firestore
+      await FirebaseFirestore.instance
+          .collection('user')
+          .doc(userId)
+          .collection('messages')
+          .add({
+        'timestamp': FieldValue.serverTimestamp(),
+        'message': message,
+      });
+
+      print('Confirmation message saved to Firestore');
+    } catch (error) {
+      print('Failed to save confirmation message to Firestore: $error');
+    }
+  }
+
+
+  Future<void> sendCancellationMessage(String userId, Orders order) async {
+    try {
+      String message = 'প্রিয় ${order.username},\n'
+          'আপনার অর্ডারটি বাতিল করা হয়েছে।\n'
+          'অর্ডার: ${order.name}\n'
+          'পরিমাণ: ${order.quantity}\n'
+          'মূল্য: ${order.amount}\n'
+          'বিক্রেতা: ${order.vendor}\n'
+          'অর্ডার আইডি: ${order.id}\n'
+          'ধন্যবাদ।';
+
+      // Store the message in Firestore
+      await FirebaseFirestore.instance
+          .collection('user')
+          .doc(userId)
+          .collection('messages')
+          .add({
+        'timestamp': FieldValue.serverTimestamp(),
+        'message': message,
+      });
+
+      print('Cancellation message saved to Firestore');
+    } catch (error) {
+      print('Failed to save cancellation message to Firestore: $error');
+    }
+  }
+
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -198,60 +323,66 @@ class _MyOrdersState extends State<MyOrders> {
                                   fontSize: FetchPixels.getTextScale()*16
                               ),
                             ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  'অর্ডার কনফার্ম করুন?',
-                                  style: TextStyle(
+                            if (_showConfirmRowMap[order.id] ?? false)
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    'অর্ডার কনফার্ম করুন?',
+                                    style: TextStyle(
                                       fontFamily: 'Kalpurush',
                                       color: kSecondaryColor,
                                       fontWeight: FontWeight.bold,
-                                      fontSize: FetchPixels.getTextScale()*16
+                                      fontSize: FetchPixels.getTextScale() * 16,
+                                    ),
                                   ),
-                                ),
-                                InkWell(
-                                  onTap: (){
-                                    order.copyWith(status: 'কনফার্ম');
-                                    updateOrder(Usermodel().getUserID(),order);
-                                  },
-                                  child: Row(
-                                    children: [
-                                      Icon(
-                                        Icons.check,
-                                        color: Colors.green,
-                                      ),
-                                      Text(
-                                        'হ্যাঁ',
-                                        style: TextStyle(
+                                  InkWell(
+                                    onTap: () async {
+                                      await updateOrderStatus(Usermodel().getUserID(), order, 'কনফার্ম');
+                                    },
+                                    child: Row(
+                                      children: [
+                                        Icon(
+                                          Icons.check,
+                                          color: Colors.green,
+                                        ),
+                                        Text(
+                                          'হ্যাঁ',
+                                          style: TextStyle(
                                             fontFamily: 'Kalpurush',
                                             color: Colors.green,
                                             fontWeight: FontWeight.bold,
-                                            fontSize: FetchPixels.getTextScale()*16
+                                            fontSize: FetchPixels.getTextScale() * 16,
+                                          ),
                                         ),
-                                      ),
-                                    ],
+                                      ],
+                                    ),
                                   ),
-                                ),
-                                Row(
-                                  children: [
-                                    Icon(
-                                      Icons.not_interested,
-                                      color: Colors.red,
-                                    ),
-                                    Text(
-                                      'না',
-                                      style: TextStyle(
-                                          fontFamily: 'Kalpurush',
+                                  InkWell(
+                                    onTap: () async {
+                                      await updateOrderStatus(Usermodel().getUserID(), order, 'বাতিল');
+                                    },
+                                    child: Row(
+                                      children: [
+                                        Icon(
+                                          Icons.not_interested,
                                           color: Colors.red,
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: FetchPixels.getTextScale()*16
-                                      ),
+                                        ),
+                                        Text(
+                                          'না',
+                                          style: TextStyle(
+                                            fontFamily: 'Kalpurush',
+                                            color: Colors.red,
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: FetchPixels.getTextScale() * 16,
+                                          ),
+                                        ),
+                                      ],
                                     ),
-                                  ],
-                                ),
-                              ],
-                            ),
+                                  ),
+                                ],
+                              ),
+
                           ],
                         ),
                       ],
