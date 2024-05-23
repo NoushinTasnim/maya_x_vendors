@@ -66,6 +66,7 @@ class _AddProductState extends State<AddProduct> {
       try {
         String? imageURL = await _uploadImage(_imageFile!);
         if (imageURL == null) return;
+
         QuerySnapshot querySnapshot = await FirebaseFirestore.instance
             .collection('categories')
             .where('name', isEqualTo: _selectedOption)
@@ -95,6 +96,19 @@ class _AddProductState extends State<AddProduct> {
 
           await newDocRef.set(productData);
 
+          // Get the current user's vendor ID (assuming you have this information)
+          String vendorId = user.getUserID();
+
+          // Create a new document reference for the product in the 'vendors' collection
+          DocumentReference vendorDocRef = FirebaseFirestore.instance
+              .collection('vendors')
+              .doc(vendorId)
+              .collection('products')
+              .doc(uniqueId); // Use the same uniqueId for consistency
+
+          // Save the product data to the 'vendors' collection
+          await vendorDocRef.set(productData);
+
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               backgroundColor: kSecondaryColor,
@@ -108,6 +122,8 @@ class _AddProductState extends State<AddProduct> {
           setState(() {
             _imageFile = null;
           });
+
+          
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
@@ -162,136 +178,130 @@ class _AddProductState extends State<AddProduct> {
           ),
         ),
       ),
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Padding(
-            padding: EdgeInsets.all(FetchPixels.getScale()*16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(
-                  height: FetchPixels.getPixelHeight(16),
-                ),
-                Text(
-                  'পণ্যের বিবরণী',
-                  style: TextStyle(
-                    fontFamily: 'Kalpurush',
-                    color: kSecondaryColor,
-                    fontSize: FetchPixels.getTextScale()*20,
-                    fontWeight: FontWeight.bold,
+      body: SingleChildScrollView(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Padding(
+              padding: EdgeInsets.all(FetchPixels.getScale()*16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(
+                    height: FetchPixels.getPixelHeight(16),
                   ),
-                ),
-                SizedBox(
-                  height: FetchPixels.getPixelHeight(16),
-                ),
-                Center(
-                  child: Container(
-                    width: double.infinity, // Make the container take full width
-                    padding: EdgeInsets.symmetric(vertical: FetchPixels.getPixelHeight(8),), // Optional: Add horizontal padding
-                    child: DropdownButton<String>(
-                      value: _selectedOption, // The currently selected item
-                      hint: Text(
-                        'পণ্যের ধরণ নির্বাচন করুন',
-                        style: TextStyle(
-                          fontFamily: 'Kalpurush',
-                          color: kSecondaryColor,
-                        ),
-                      ),
-                      isExpanded: true, // Ensure the dropdown button fills the width of its parent
-                      items: _options.map((String value) {
-                        return DropdownMenuItem<String>(
-                          value: value,
-                          child: Text(value),
-                        );
-                      }).toList(),
-                      onChanged: (String? newValue) {
-                        setState(() {
-                          _selectedOption = newValue; // Update the selected item
-                        });
-                      },
-                    ),
-                  ),
-                ),
-                TextFieldWidget(
-                  iconData: Icons.card_giftcard,
-                  keyboard_type: TextInputType.name,
-                  text: 'পণ্যের নাম',
-                  obscureText: false,
-                  textInputController: _productNameController,
-                ),
-                SizedBox(
-                  height: FetchPixels.getPixelHeight(16),
-                ),
-                TextFieldWidget(
-                  iconData: Icons.description,
-                  keyboard_type: TextInputType.number,
-                  text: 'পণ্যের মূল্য',
-                  obscureText: false,
-                  textInputController: _productAmountController,
-                ),
-                SizedBox(
-                  height: FetchPixels.getPixelHeight(16),
-                ),
-                TextFieldWidget(
-                  iconData: Icons.attach_money,
-                  keyboard_type: TextInputType.multiline,
-                  text: 'পণ্যের বিবরণী',
-                  obscureText: false,
-                  textInputController: _productDescriptionController,
-                ),
-                SizedBox(
-                  height: FetchPixels.getPixelHeight(16),
-                ),
-                TextButton.icon(
-                  icon: Icon(Icons.image, color: kSecondaryColor),
-                  label: Text(
-                    'ছবি নির্বাচন করুন',
+                  Text(
+                    'পণ্যের বিবরণী',
                     style: TextStyle(
                       fontFamily: 'Kalpurush',
                       color: kSecondaryColor,
+                      fontSize: FetchPixels.getTextScale()*20,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
-                  onPressed: _pickImage,
-                ),
-                if (_imageFile != null)
-                  Image.file(
-                    _imageFile!,
-                    height: 200,
+                  SizedBox(
+                    height: FetchPixels.getPixelHeight(16),
                   ),
-              ],
-            ),
-          ),
-          InkWell(
-            // onTap: (){
-            //   ScaffoldMessenger.of(context).showSnackBar(
-            //     const SnackBar(
-            //       backgroundColor: kSecondaryColor,
-            //       content: Text("পণ্যটি যুক্ত হয়েছে",),
-            //     ),
-            //   );
-            // },
-            onTap: _addProduct,
-            child: Container(
-              width: double.infinity,
-              padding: EdgeInsets.all(FetchPixels.getScale()*16,),
-              decoration: BoxDecoration(
-                color: kAccentColor,
-                borderRadius: BorderRadius.circular(FetchPixels.getScale()*16)
+                  Center(
+                    child: Container(
+                      width: double.infinity, // Make the container take full width
+                      padding: EdgeInsets.symmetric(vertical: FetchPixels.getPixelHeight(8),), // Optional: Add horizontal padding
+                      child: DropdownButton<String>(
+                        value: _selectedOption, // The currently selected item
+                        hint: Text(
+                          'পণ্যের ধরণ নির্বাচন করুন',
+                          style: TextStyle(
+                            fontFamily: 'Kalpurush',
+                            color: kSecondaryColor,
+                          ),
+                        ),
+                        isExpanded: true, // Ensure the dropdown button fills the width of its parent
+                        items: _options.map((String value) {
+                          return DropdownMenuItem<String>(
+                            value: value,
+                            child: Text(value),
+                          );
+                        }).toList(),
+                        onChanged: (String? newValue) {
+                          setState(() {
+                            _selectedOption = newValue; // Update the selected item
+                          });
+                        },
+                      ),
+                    ),
+                  ),
+                  TextFieldWidget(
+                    iconData: Icons.card_giftcard,
+                    keyboard_type: TextInputType.name,
+                    text: 'পণ্যের নাম',
+                    obscureText: false,
+                    textInputController: _productNameController,
+                  ),
+                  SizedBox(
+                    height: FetchPixels.getPixelHeight(16),
+                  ),
+                  TextFieldWidget(
+                    iconData: Icons.description,
+                    keyboard_type: TextInputType.number,
+                    text: 'পণ্যের মূল্য',
+                    obscureText: false,
+                    textInputController: _productAmountController,
+                  ),
+                  SizedBox(
+                    height: FetchPixels.getPixelHeight(16),
+                  ),
+                  TextFieldWidget(
+                    iconData: Icons.attach_money,
+                    keyboard_type: TextInputType.multiline,
+                    text: 'পণ্যের বিবরণী',
+                    obscureText: false,
+                    textInputController: _productDescriptionController,
+                  ),
+                  SizedBox(
+                    height: FetchPixels.getPixelHeight(16),
+                  ),
+                  TextButton.icon(
+                    icon: Icon(Icons.image, color: kSecondaryColor),
+                    label: Text(
+                      'ছবি নির্বাচন করুন',
+                      style: TextStyle(
+                        fontFamily: 'Kalpurush',
+                        color: kSecondaryColor,
+                      ),
+                    ),
+                    onPressed: _pickImage,
+                  ),
+                  if (_imageFile != null)
+                    Image.file(
+                      _imageFile!,
+                      height: 200,
+                    ),
+                ],
               ),
-              child: Center(
-                child: Text(
-                  'পণ্য যোগ করুন',
-                  style: TextStyle(
-                    fontFamily: 'Kalpurush',
-                    color: kPrimaryColor,
-                    fontSize: FetchPixels.getTextScale()*16,
+            ),
+            InkWell(
+              onTap: _addProduct,
+              child: Container(
+                width: FetchPixels.getScale()*200,
+                padding: EdgeInsets.all(FetchPixels.getScale()*16,),
+                decoration: BoxDecoration(
+                  color: kAccentColor,
+                  borderRadius: BorderRadius.circular(FetchPixels.getScale()*16)
+                ),
+                child: Center(
+                  child: Text(
+                    'পণ্য যোগ করুন',
+                    style: TextStyle(
+                      fontFamily: 'Kalpurush',
+                      color: kPrimaryColor,
+                      fontSize: FetchPixels.getTextScale()*16,
+                    ),
                   ),
                 ),
               ),
-            ),
-          )
-        ],
+            )
+          ],
+        ),
       ),
     );
   }

@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:maya_x_vendors/fetch_pixels.dart';
 import 'package:maya_x_vendors/screens/signup_screen.dart';
 
 
@@ -22,9 +23,11 @@ class _LoginScreenState extends State<LoginScreen> {
   TextEditingController passwordController = TextEditingController();
 
   String errorMessage = '';
+  bool _isLoading = false;
 
   @override
   Widget build(BuildContext context) {
+    FetchPixels(context);
     return Scaffold(
       backgroundColor: kPrimaryColor,
       body: Center(
@@ -58,6 +61,9 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 InkWell(
                   onTap: () async {
+                    setState(() {
+                      _isLoading = true;
+                    });
                     String phone = phoneController.text.trim();
                     String password = passwordController.text.trim();
 
@@ -84,9 +90,15 @@ class _LoginScreenState extends State<LoginScreen> {
                             builder: (context) => BottomNavScreen(),
                           ),
                         );
+                        setState(() {
+                          _isLoading = false;
+                        });
                         return;
                       }
                     }
+                    setState(() {
+                      _isLoading = false;
+                    });
 
                     // Display error message if authentication fails
                     setState(() {
@@ -114,6 +126,14 @@ class _LoginScreenState extends State<LoginScreen> {
                           fontWeight: FontWeight.bold,
                           fontSize: 16),
                       textAlign: TextAlign.center,
+                    ),
+                  ),
+                ),
+                if(_isLoading) Center(
+                  child: Padding(
+                    padding: EdgeInsets.all(FetchPixels.getScale()*16.0),
+                    child: CircularProgressIndicator(
+                      color: kAccentColor,
                     ),
                   ),
                 ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:maya_x_vendors/fetch_pixels.dart';
 
 import '../colors.dart';
 import '../components/text_input.dart';
@@ -21,9 +22,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
   TextEditingController userController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
   String? verificationId;
+  bool _isLoading = false;
 
   @override
   Widget build(BuildContext context) {
+    FetchPixels(context);
     return Scaffold(
       backgroundColor: kPrimaryColor,
       body: Center(
@@ -49,11 +52,17 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 TextInputFiledsWidget(phoneController: phoneController, userController: userController,passwordController: passwordController),
                 InkWell(
                   onTap: () async {
+                    setState(() {
+                      _isLoading = true;
+                    });
                     String phone = phoneController.text.trim();
                     if (!phone.startsWith("+880") || phone.length != 14) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(content: Text('ফোন নম্বরটি ১১ ডিজিটের হতে হবে এবং +880 দিয়ে শুরু করতে হবে')),
                       );
+                      setState(() {
+                        _isLoading = false;
+                      });
                       return;
                     }
 
@@ -98,6 +107,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         },
                       );
                     }
+                    setState(() {
+                      _isLoading = false;
+                    });
                   },
                   child: Container(
                     width: double.infinity,
@@ -120,6 +132,14 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           fontSize: 16
                       ),
                       textAlign: TextAlign.center,
+                    ),
+                  ),
+                ),
+                if(_isLoading) Center(
+                  child: Padding(
+                    padding: EdgeInsets.all(FetchPixels.getScale()*16.0),
+                    child: CircularProgressIndicator(
+                      color: kAccentColor,
                     ),
                   ),
                 ),

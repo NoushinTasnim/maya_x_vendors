@@ -153,11 +153,11 @@ class _ProductScreenState extends State<ProductScreen> {
               future: _futureCategories,
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return Center(child: CircularProgressIndicator());
+                  return Center(child: CircularProgressIndicator(color: kAccentColor,));
                 } else if (snapshot.hasError) {
-                  return Center(child: Text('Error: ${snapshot.error}'));
+                  return Center(child: Text('ইন্টারনেট কানেকশন চেক করুন'));
                 } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                  return Center(child: Text('No products available'));
+                  return Center(child: Text('ইন্টারনেট কানেকশন চেক করুন'));
                 }
 
                 final categories = snapshot.data!;
