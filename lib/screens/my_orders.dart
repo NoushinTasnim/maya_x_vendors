@@ -213,7 +213,7 @@ class _MyOrdersState extends State<MyOrders> {
                                 InkWell(
                                   onTap: (){
                                     order.copyWith(status: 'কনফার্ম');
-                                    updateOrder(Usermodel().getUserID(), order.id);
+                                    updateOrder(Usermodel().getUserID(),order);
                                   },
                                   child: Row(
                                     children: [

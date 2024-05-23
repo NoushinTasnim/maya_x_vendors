@@ -27,6 +27,7 @@ class _ProductScreenState extends State<ProductScreen> {
   void initState() {
     super.initState();
     _futureCategories = loadCategories();
+    fetchData();
   }
 
   @override
