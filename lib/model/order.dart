@@ -41,6 +41,21 @@ class Orders{
     );
   }
 
+  Orders copyWith({String? status}) {
+    return Orders(
+      id: this.id,
+      name: this.name,
+      quantity: this.quantity,
+      image: this.image,
+      date: this.date,
+      amount: this.amount,
+      vendor: this.vendor,
+      status: status ?? this.status,
+      username: this.username,
+      userPhone: this.userPhone,
+    );
+  }
+
   Map<String, dynamic> toJson() {
     return {
       'id': id,

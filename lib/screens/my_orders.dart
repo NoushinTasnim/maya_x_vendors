@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:maya_x_vendors/fetch_pixels.dart';
+import 'package:maya_x_vendors/utils/store_orders.dart';
 
 import '../colors.dart';
 import '../model/Vendor_model.dart';
@@ -209,22 +210,28 @@ class _MyOrdersState extends State<MyOrders> {
                                       fontSize: FetchPixels.getTextScale()*16
                                   ),
                                 ),
-                                Row(
-                                  children: [
-                                    Icon(
-                                      Icons.check,
-                                      color: Colors.green,
-                                    ),
-                                    Text(
-                                      'হ্যাঁ',
-                                      style: TextStyle(
-                                          fontFamily: 'Kalpurush',
-                                          color: Colors.green,
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: FetchPixels.getTextScale()*16
+                                InkWell(
+                                  onTap: (){
+                                    order.copyWith(status: 'কনফার্ম');
+                                    updateOrder(Usermodel().getUserID(), order.id);
+                                  },
+                                  child: Row(
+                                    children: [
+                                      Icon(
+                                        Icons.check,
+                                        color: Colors.green,
                                       ),
-                                    ),
-                                  ],
+                                      Text(
+                                        'হ্যাঁ',
+                                        style: TextStyle(
+                                            fontFamily: 'Kalpurush',
+                                            color: Colors.green,
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: FetchPixels.getTextScale()*16
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ),
                                 Row(
                                   children: [
