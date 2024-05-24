@@ -323,7 +323,7 @@ class _MyOrdersState extends State<MyOrders> {
                                   fontSize: FetchPixels.getTextScale()*16
                               ),
                             ),
-                            if (_showConfirmRowMap[order.id] ?? false)
+                            if (order.status=='পেন্ডিং')
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [

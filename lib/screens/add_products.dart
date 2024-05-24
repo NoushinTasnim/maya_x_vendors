@@ -3,6 +3,7 @@ import 'package:maya_x_vendors/colors.dart';
 import 'package:maya_x_vendors/fetch_pixels.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:maya_x_vendors/utils/language_map.dart';
 import '../components/text_field.dart';
 import 'my_products.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -20,6 +21,7 @@ class _AddProductState extends State<AddProduct> {
   TextEditingController _productNameController = TextEditingController();
   TextEditingController _productAmountController = TextEditingController();
   TextEditingController _productDescriptionController = TextEditingController();
+  bool _isLoading = false;
 
   String? _selectedOption; // State variable to keep track of the selected option
   File? _imageFile;
@@ -57,6 +59,9 @@ class _AddProductState extends State<AddProduct> {
   }
 
   void _addProduct() async {
+    setState(() {
+      _isLoading = true;
+    });
     if (_selectedOption != null &&
         _productNameController.text.isNotEmpty &&
         _productAmountController.text.isNotEmpty &&
@@ -65,73 +70,80 @@ class _AddProductState extends State<AddProduct> {
 
       try {
         String? imageURL = await _uploadImage(_imageFile!);
-        if (imageURL == null) return;
-
-        QuerySnapshot querySnapshot = await FirebaseFirestore.instance
-            .collection('categories')
-            .where('name', isEqualTo: _selectedOption)
-            .get();
-
-        if (querySnapshot.docs.isNotEmpty) {
-          String categoryId = querySnapshot.docs.first.id;
-          DocumentReference newDocRef = FirebaseFirestore.instance
-              .collection('categories')
-              .doc(categoryId)
-              .collection('products')
-              .doc();
-
-          String uniqueId = newDocRef.id;
-          int uniqueIndex = DateTime.now().millisecondsSinceEpoch;
-
-
-          Map<String, dynamic> productData = {
-            'id': uniqueId,
-            'index': uniqueIndex,
-            'name': _productNameController.text,
-            'amount': _productAmountController.text,
-            'image': imageURL,
-            'details': _productDescriptionController.text,
-            'vendor': user.getShopName(),
-          };
-
-          await newDocRef.set(productData);
-
-          // Get the current user's vendor ID (assuming you have this information)
-          String vendorId = user.getUserID();
-
-          // Create a new document reference for the product in the 'vendors' collection
-          DocumentReference vendorDocRef = FirebaseFirestore.instance
-              .collection('vendors')
-              .doc(vendorId)
-              .collection('products')
-              .doc(uniqueId); // Use the same uniqueId for consistency
-
-          // Save the product data to the 'vendors' collection
-          await vendorDocRef.set(productData);
-
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              backgroundColor: kSecondaryColor,
-              content: Text("পণ্যটি যুক্ত হয়েছে"),
-            ),
-          );
-
-          _productNameController.clear();
-          _productAmountController.clear();
-          _productDescriptionController.clear();
+        if (imageURL == null) {
           setState(() {
-            _imageFile = null;
+            _isLoading = false;
           });
-
-          
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              backgroundColor: kSecondaryColor,
-              content: Text("পণ্যটি যোগ করতে ব্যর্থ হয়েছে: বিভাগ পাওয়া যায়নি"),
-            ),
-          );
+          return;
         }
+            QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+                .collection('categories')
+                .where('name', isEqualTo: _selectedOption)
+                .get();
+
+            if (querySnapshot.docs.isNotEmpty) {
+              String categoryId = querySnapshot.docs.first.id;
+              DocumentReference newDocRef = FirebaseFirestore.instance
+                  .collection('categories')
+                  .doc(categoryId)
+                  .collection('products')
+                  .doc();
+
+              String uniqueId = newDocRef.id;
+              int uniqueIndex = DateTime.now().millisecondsSinceEpoch;
+
+
+              Map<String, dynamic> productData = {
+                'id': uniqueId,
+                'index': uniqueIndex,
+                'name': _productNameController.text,
+                'amount': englishToBangla(_productAmountController.text) + ' টাকা',
+                'image': imageURL,
+                'details': _productDescriptionController.text,
+                'vendor': user.getShopName(),
+              };
+
+              await newDocRef.set(productData);
+
+              // Get the current user's vendor ID (assuming you have this information)
+              String vendorId = user.getUserID();
+
+              // Create a new document reference for the product in the 'vendors' collection
+              DocumentReference vendorDocRef = FirebaseFirestore.instance
+                  .collection('vendors')
+                  .doc(vendorId)
+                  .collection('products')
+                  .doc(uniqueId); // Use the same uniqueId for consistency
+
+              // Save the product data to the 'vendors' collection
+              await vendorDocRef.set(productData);
+
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  backgroundColor: kSecondaryColor,
+                  content: Text("পণ্যটি যুক্ত হয়েছে"),
+                ),
+              );
+
+              _productNameController.clear();
+              _productAmountController.clear();
+              _productDescriptionController.clear();
+              setState(() {
+                _imageFile = null;
+              });
+
+
+            } else {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  backgroundColor: kSecondaryColor,
+                  content: Text("পণ্যটি যোগ করতে ব্যর্থ হয়েছে: বিভাগ পাওয়া যায়নি"),
+                ),
+              );
+            }
+        setState(() {
+          _isLoading = false;
+        });
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -299,7 +311,15 @@ class _AddProductState extends State<AddProduct> {
                   ),
                 ),
               ),
-            )
+            ),
+            if(_isLoading) Center(
+              child: Padding(
+                padding: EdgeInsets.all(FetchPixels.getScale()*32),
+                child: CircularProgressIndicator(
+                  color: kAccentColor,
+                ),
+              ),
+            ),
           ],
         ),
       ),
