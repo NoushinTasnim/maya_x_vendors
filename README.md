@@ -2,7 +2,6 @@
 <p align="center">
   <img src="https://github.com/NoushinTasnim/maya_x_vendors/blob/main/5401087.png" alt="App Screenshot" width="1000" />
 </p>
-<h1>Maya X Vendors</h1>
     <p>
         <strong>Maya X Vendors</strong> is a dedicated platform for vendors who wish to sell their products to the users of the <strong>Maya X</strong> app. Maya X is a Bengali e-commerce app specifically designed for women's menstrual hygiene products, catering to the needs of rural Bangladeshi women by providing a comfortable and user-friendly experience in their native language.
     </p>
