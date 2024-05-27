@@ -13,10 +13,8 @@
     </p>
         <h2>Key Features</h2>
   <ul>
-      <li><strong>Product Management:</strong> Easily add, update, and remove products from your inventory.</li>
+      <li><strong>Product Management:</strong> Easily add products from your inventory.</li>
         <li><strong>Order Management:</strong> Track and manage incoming orders with real-time updates.</li>
-        <li><strong>Customer Engagement:</strong> Communicate directly with customers for queries and support.</li>
-        <li><strong>Analytics:</strong> Access sales data and performance metrics to make informed business decisions.</li>
         <li><strong>Multilingual Support:</strong> Available in Bengali to ensure ease of use for local vendors.</li>
     </ul>
  <h2>Technical Details</h2>
